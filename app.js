@@ -19,8 +19,9 @@ const subBtn = document.querySelector("#sub");
 const multiplyBtn = document.querySelector("#multiply");
 const divideBtn = document.querySelector("#divide");
 const equalBtn = document.querySelector("#equal");
+//
+const clearBtn = document.querySelector("#clear");
 
-let operation = 0;
 let arr = [0];
 let string = "";
 let action = "";
@@ -51,8 +52,18 @@ function btnAction(btn){
         bottomScreen.textContent = string + btn.textContent;
         string = bottomScreen.textContent;
         displayValue = parseInt(string);
+        action = "add";
     });
 };
+
+function clear(){
+    topScreen.innerHTML = "";
+    bottomScreen.textContent = 0;
+    let action = "";
+    displayValue = 0;
+    string = 0;
+    arr = [0];
+}
 //
 ///
 ////
@@ -68,16 +79,23 @@ btnAction(btn7);
 btnAction(btn8);
 btnAction(btn9);
 
+clearBtn.addEventListener('click', () => {
+    clear()
+});
+
 addBtn.addEventListener('click', () => {
     arr.push(displayValue);
-    operation = operate(add, arr[0], arr[1]);
-    topScreen.textContent = `${operation} +`;
-    bottomScreen.textContent = operation;
-    for (let num of arr){
-        arr.pop();
-    };
+    topScreen.textContent = `${operate(add, arr[0], displayValue)} +`;
+    arr = [operate(add, arr[0], displayValue)];
     string = "";
-    action = "add";
+    displayValue = 0;
+    bottomScreen.textContent = operate(add, arr[0], displayValue);
+});
+
+equalBtn.addEventListener('click', () => {
+    if (action === "add"){
+        let result = operate(add, arr[0], arr[1]);
+    }
 });
 
 
