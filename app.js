@@ -2,30 +2,18 @@
 const bottomScreen = document.querySelector("#bottom-screen-display");
 const topScreen = document.querySelector("#top-screen-display");
 // Numbers
-const btn9 = document.querySelector("#nine");
-const btn8 = document.querySelector("#eight");
-const btn7 = document.querySelector("#seven");
-const btn6 = document.querySelector("#six");
-const btn5 = document.querySelector("#five");
-const btn4 = document.querySelector("#four");
-const btn3 = document.querySelector("#three");
-const btn2 = document.querySelector("#two");
-const btn1 = document.querySelector("#one");
-const btn0 = document.querySelector("#zero");
-const dotBtn = document.querySelector("#dot");
+const allNums = document.querySelectorAll(".num");
+const decimalBtn = document.querySelector("#dot");
 // Operators
-const addBtn = document.querySelector("#add");
-const subBtn = document.querySelector("#sub");
-const multiplyBtn = document.querySelector("#multiply");
-const divideBtn = document.querySelector("#divide");
-const equalBtn = document.querySelector("#equal");
+const allOps = document.querySelectorAll(".op");
 //
 const clearBtn = document.querySelector("#clear");
+const equalBtn = document.querySelector("#equal");
 
 let arr = [0];
-let string = "";
-let action = "";
-let displayValue = 0;
+let operator = "";
+let previousValue = "";
+let currentValue = "";
 
 function add(a, b){
     return a + b;
@@ -47,55 +35,82 @@ function operate(operator, a, b){
     return operator(a, b);
 };
 
-function btnAction(btn){
-    btn.addEventListener('click', () => {
-        bottomScreen.textContent = string + btn.textContent;
-        string = bottomScreen.textContent;
-        displayValue = parseInt(string);
-        action = "add";
-    });
-};
+allOps.forEach((operator) => {
+    operator.addEventListener('click', (e) => {
+        handleOperator(e.target.textContent);
+    })
+});
 
-function clear(){
-    topScreen.innerHTML = "";
-    bottomScreen.textContent = 0;
-    let action = "";
-    displayValue = 0;
-    string = 0;
-    arr = [0];
-}
-//
-///
-////
-btnAction(dotBtn);
-btnAction(btn0);
-btnAction(btn1);
-btnAction(btn2);
-btnAction(btn3);
-btnAction(btn4);
-btnAction(btn5);
-btnAction(btn6);
-btnAction(btn7);
-btnAction(btn8);
-btnAction(btn9);
+allNums.forEach((number) => {
+    number.addEventListener('click', (e) => {
+        handleNumber(e.target.textContent);
+        bottomScreen.textContent = currentValue;
+    })
+});
 
 clearBtn.addEventListener('click', () => {
-    clear()
-});
-
-addBtn.addEventListener('click', () => {
-    arr.push(displayValue);
-    topScreen.textContent = `${operate(add, arr[0], displayValue)} +`;
-    arr = [operate(add, arr[0], displayValue)];
-    string = "";
-    displayValue = 0;
-    bottomScreen.textContent = operate(add, arr[0], displayValue);
-});
+    operator = "";
+    currentValue = "";
+    previousValue = "";
+    topScreen.textContent = ""
+    bottomScreen.textContent = 0;
+})
 
 equalBtn.addEventListener('click', () => {
-    if (action === "add"){
-        let result = operate(add, arr[0], arr[1]);
+    if(currentValue != "" && previousValue !== ""){
+        calculate();
+        topScreen.textContent = "";
+        if(currentValue.length <= 5){
+            bottomScreen.textContent = currentValue;
+        }else{
+            bottomScreen.textContent = `${currentValue.slice(0,5)}...`;
+        }
     }
 });
 
+decimalBtn.addEventListener('click', () => {
+    addDecimal();
+})
 
+function handleOperator(op){
+    topScreen.textContent = `${bottomScreen.textContent} ${op}`;
+    previousValue = currentValue;
+    currentValue = "";
+    bottomScreen.textContent = 0;
+    operator = op;
+};
+
+function handleNumber(num){
+    if(currentValue.length <= 5){
+        currentValue += num;
+    }
+};
+
+function calculate(){
+    previousValue = Number(previousValue);
+    currentValue = Number(currentValue);
+
+    if (operator === "+"){
+        currentValue = operate(add, previousValue, currentValue);
+    }else if(operator === "-"){
+        currentValue = operate(substract, previousValue, currentValue);
+    }else if(operator === "x"){
+        currentValue = operate(multiply, previousValue, currentValue);
+    }else{
+        currentValue = operate(divide, previousValue, currentValue);
+    }
+    currentValue = roundNumber(currentValue);
+    previousValue = previousValue.toString();
+    currentValue = currentValue.toString();
+};
+
+function roundNumber(num){
+    return Math.round(num * 1000) / 1000;
+};
+
+function addDecimal(){
+    if(!currentValue.includes(".")){
+        bottomScreen.textContent = currentValue + ".";
+        currentValue += ".";
+    }
+}
